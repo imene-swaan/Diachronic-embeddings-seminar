@@ -9,3 +9,4 @@ DHOxSS/
 scripts/optimize_params
 .venv
 poetry.lock
+tests/test_data/
