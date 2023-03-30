@@ -1,8 +1,81 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+import xmltodict
+import json
+import os
+from glob import glob
 import re
 import numpy as np
+import random
+
+
+
+# -------- read_xml ---------
+def read_xml(file_path: str):
+    """
+    Read in an xml file and return a dict.
+
+    Args:
+        file_path (str): The path to the xml file.
+
+    Returns:
+        dict: A dict representation of the xml file.
+    """
+
+    with open(file_path, 'r') as f:
+        xml_string = f.read()
+    
+    return xmltodict.parse(xml_string)
+
+
+# -------- get_articles ---------
+def get_articles(file_path: str) -> list:
+    """
+    Read in the xml file and return a list of articles.
+
+    Args:
+        file_path (str): The path to the xml file.
+
+    Returns:
+        list: A list of articles.
+    """
+    xml_dict = read_xml(file_path)
+    return xml_dict['records']['record']
+
+
+ # ------- get_sentences --------
+def get_sentences(records: list) -> list:
+    """
+    Get all sentences from a list of articles (dict).
+
+    Args:
+        records (list): A list of articles (dict).
+
+    Returns:
+        list: A list of sentences.
+    """
+    sentences = []
+    random_records = random.choices(records, k=1000)
+
+    for record in random_records:
+        article = record['fulltext']
+        sentences.extend(article.split('. '))
+        
+    return sentences
+
+# ----------------- save_sentences -----------------
+def save_sentences(sentences: list, file_path: str):
+    """
+    Save a list of sentences to a file.
+
+    Args:
+        sentences (list): A list of sentences.
+        file_path (str): The path to the file.
+    """
+    with open(file_path, 'w') as f:
+        for sentence in sentences:
+            f.write(sentence + '\n')
 
 # ------------------- cleantxt --------------------
 def cleantxt(text, remove_punctuation, lowercase):

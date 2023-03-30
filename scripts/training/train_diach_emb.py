@@ -40,7 +40,7 @@ from nltk.tokenize.regexp import regexp_tokenize
 from gensim.models import Word2Vec
 from tqdm import tqdm
 import timeit
-from .utils import stopwdsrm, cleantxt, smart_procrustes_align_gensim
+from utils.utils import stopwdsrm, cleantxt, smart_procrustes_align_gensim, get_articles,  get_sentences
 
 # ------------------- Start timing the whole process --------------------
 
@@ -49,7 +49,7 @@ startall = timeit.default_timer()
 
 # ------------------- Import configs --------------------
 
-with open("./scripts/training/config.yaml", "r") as f:
+with open("config.yaml", "r") as f:
     configs = yaml.load(f, Loader=yaml.FullLoader)
 
 # --- Relevant vars
@@ -105,7 +105,7 @@ if savepreprocessed == True:
 # ------------------- Preprocessing & training --------------------
 
 # --- List the paths for all the texts inside the input dir
-alltexts = glob(f'{inputfiles}/*txt')
+alltexts = glob(f'{inputfiles}/*.xml')
 
 # --- Define stopwords
 cachedStopWords = stopwords.words("english")
@@ -120,7 +120,7 @@ for subcorpus in alltexts:
     startslice = timeit.default_timer()
 
     # --- Get name of the time slice (i.e. the last bit of the file path without the ext)
-    nameoftimeslice = subcorpus.split('/')[-1].split('.')[0]
+    nameoftimeslice = subcorpus.split('/')[-1].split('.')[1]
 
     print(f'Now preprocessing {nameoftimeslice}...')
 
@@ -129,25 +129,28 @@ for subcorpus in alltexts:
         newfile = open(f'./outputs/{namethetest}/preprocessed_corpus/{nameoftimeslice}.txt', 'w')
     
     # --- Start list of sentences (i.e. articles, text chunks, etc., depending on input), this will be input of w2v
-    sentences = []
 
-    with open(subcorpus) as infile:
-        # --- Read line by line and preprocess
-        for line in tqdm(infile):
-            ## -- Preprocess the texts according to configs
-            text = cleantxt(line, remove_punctuation, lowercase)
-            ## -- Remove stopwords if chosen to
-            if remove_stopwords == True:
-                text = stopwdsrm(text, cachedStopWords, minwordlength) # Remove stopwords
-            ## -- Write the line to the newfile if chosen to (without tokenizing)
-            if savepreprocessed == True:
-                if text != ' ' and text != '' and text != '\n':
-                    newfile.write(text + '\n')
-            ## -- Tokenize if what's left after preprocessing is not just whitespace
-            if skip_training == False:
-                if text != ' ' and text != '' and text != '\n':
-                    text = regexp_tokenize(text, pattern='\s+', gaps =True)
-                    sentences.append(text)
+    records = get_articles(subcorpus)
+    sentences = get_sentences(records)
+
+    # --- loop through sentences and preprocess
+    clean_sentences = []
+
+    for sentence in sentences:
+        ## -- Preprocess the texts according to configs
+        text = cleantxt(sentence, remove_punctuation, lowercase)
+        ## -- Remove stopwords if chosen to
+        if remove_stopwords == True:
+            text = stopwdsrm(text, cachedStopWords, minwordlength) # Remove stopwords
+        ## -- Write the sentence to the newfile if chosen to (without tokenizing)
+        if savepreprocessed == True:
+            if text != ' ' and text != '' and text != '\n':
+                newfile.write(text + '\n')
+        ## -- Tokenize if what's left after preprocessing is not just whitespace
+        if skip_training == False:
+            if text != ' ' and text != '' and text != '\n':
+                text = regexp_tokenize(text, pattern='\s+', gaps =True)
+                clean_sentences.append(text)
     
     print('All preprocessing finished. Altogether it took {} minutes.'.format((timeit.default_timer() - startslice) / 60))
     
@@ -159,9 +162,9 @@ for subcorpus in alltexts:
                             vector_size=vector_size,
                             workers=workers)
 
-        # --- Build vocabulary from the sentences based on the initialized model
+        # --- Build vocabulary from the clean_sentences based on the initialized model
         print('Building the vocab...')
-        w2v_model.build_vocab(sentences)
+        w2v_model.build_vocab(clean_sentences)
         print('Vocab built!')
         
         # --- Start the training
@@ -170,7 +173,7 @@ for subcorpus in alltexts:
         # --- Start timing for training process
         traintime = timeit.default_timer()
         
-        w2v_model.train(sentences, 
+        w2v_model.train(clean_sentences, 
                         total_examples=w2v_model.corpus_count, 
                         start_alpha=start_alpha, 
                         end_alpha=end_alpha, 

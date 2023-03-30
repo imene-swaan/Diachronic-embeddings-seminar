@@ -1,11 +1,11 @@
 # ------------------- Give a name to the new test run --------------------
 
-namethetest: 'lwmhmdtest'
+namethetest: 'Seminar'
 
 # ------------------- General input variables --------------------
 
 inputs:
-  directory: '/test/'
+  directory: '../../tests/test_data/'
 
 # ------------------- Preprocessing settings --------------------
 
@@ -22,7 +22,7 @@ preprocessing:
 # ------------------- Training settings --------------------
 
 training:
-  skip: False
+  skip: True
   options:
     epochs: 5
     vector_size: 300
@@ -35,4 +35,4 @@ training:
 
 # ------------------- Alignment settings --------------------
 alignment:
-  skip: False
+  skip: True
