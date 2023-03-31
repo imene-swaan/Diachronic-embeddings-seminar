@@ -74,20 +74,6 @@ def get_records(file_path: str, target_words: list, number_records: int) -> list
     return sentences
 
 
-
-# ----------------- save_sentences -----------------
-def save_sentences(sentences: list, file_path: str):
-    """
-    Save a list of sentences to a file.
-
-    Args:
-        sentences (list): A list of sentences.
-        file_path (str): The path to the file.
-    """
-    with open(file_path, 'w') as f:
-        for sentence in sentences:
-            f.write(sentence + '\n')
-
 # ------------------- cleantxt --------------------
 def cleantxt(text, remove_punctuation, lowercase):
     """

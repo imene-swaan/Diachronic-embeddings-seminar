@@ -113,9 +113,9 @@ alltexts = sorted(glob(f'{inputfiles}/*.xml'))
 cachedStopWords = stopwords.words("english")
 
 ## -- To expand the default NLTK stopwords for English, uncomment the following three lines and add your own:
-#newstopwords = ['mrs','mr','say','says','said','tell','told','seem','seems','seemed','ask','asks','asked','upon','aboard','about','above','account','across','after','against','ago','ahead','along','alongside','amid','among','around','aside','at','atop','away','because','before','behalf','behind','below','beneath','beside','besides','between','beyond','but','by','circa','considering','depending','despite','down','due','during','for','from','further','given','in','including','inside','instead','into','less','like','near','notwithstanding','of','off','on','onto','opposite','other','out','outside','over','owing','per','plus','regarding','regardless','round','since','than','thanks','through','throughout','till','to','together','toward','towards','under','underneath','unlike','until','up','upon','versus','via','with','within','without']
-#cachedStopWords.extend(newstopwords)
-#cachedStopWords = list(dict.fromkeys(cachedStopWords))
+newstopwords = ['mrs','mr','say','says','said','tell','told','seem','seems','seemed','ask','asks','asked','upon','aboard','about','above','account','across','after','against','ago','ahead','along','alongside','amid','among','around','aside','at','atop','away','because','before','behalf','behind','below','beneath','beside','besides','between','beyond','but','by','circa','considering','depending','despite','down','due','during','for','from','further','given','in','including','inside','instead','into','less','like','near','notwithstanding','of','off','on','onto','opposite','other','out','outside','over','owing','per','plus','regarding','regardless','round','since','than','thanks','through','throughout','till','to','together','toward','towards','under','underneath','unlike','until','up','upon','versus','via','with','within','without']
+cachedStopWords.extend(newstopwords)
+cachedStopWords = list(dict.fromkeys(cachedStopWords))
 
 for subcorpus in alltexts:
     # --- Start timing for the specific time slice
