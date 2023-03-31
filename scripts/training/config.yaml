@@ -6,6 +6,8 @@ namethetest: 'Seminar'
 
 inputs:
   directory: '../../tests/test_data/'
+  number_records: 1000 #number of articles to use for each target word
+  target: 'abuse war' #lowercase space seperated target words 
 
 # ------------------- Preprocessing settings --------------------
 

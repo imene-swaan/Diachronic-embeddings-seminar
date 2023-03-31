@@ -41,28 +41,39 @@ def get_articles(file_path: str) -> list:
         list: A list of articles.
     """
     xml_dict = read_xml(file_path)
-    return xml_dict['records']['record']
+    articles = xml_dict['records']['record']
+
+    clean_articles = []
+
+    for article in articles:
+        if 'fulltext' in article.keys():
+            if article['fulltext'] != None and (type(article['fulltext']) != list):
+                clean_articles.append(article['fulltext'])
+
+    return clean_articles
 
 
- # ------- get_sentences --------
-def get_sentences(records: list) -> list:
+# -------- get_records ---------
+def get_records(file_path: str, target_words: list, number_records: int) -> list:
     """
-    Get all sentences from a list of articles (dict).
+    Read in the xml file and return a list of records.
 
     Args:
-        records (list): A list of articles (dict).
+        file_path (str): The path to the xml file.
 
     Returns:
-        list: A list of sentences.
+        list: A list of records.
     """
-    sentences = []
-    random_records = random.choices(records, k=1000)
+    articles = get_articles(file_path)
+    bag = [sentence for article in articles for sentence in article.split('. ') if all([sentence != '', 4 < len(sentence.split()) < 512, any([word in sentence.split() for word in target_words])])]
 
-    for record in random_records:
-        article = record['fulltext']
-        sentences.extend(article.split('. '))
-        
+    sentences = []
+    for word in target_words:
+        sentences += random.choices([sentence for sentence in bag if word in sentence], k= number_records)
+
     return sentences
+
+
 
 # ----------------- save_sentences -----------------
 def save_sentences(sentences: list, file_path: str):

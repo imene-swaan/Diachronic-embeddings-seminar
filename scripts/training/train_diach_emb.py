@@ -40,7 +40,7 @@ from nltk.tokenize.regexp import regexp_tokenize
 from gensim.models import Word2Vec
 from tqdm import tqdm
 import timeit
-from utils.utils import stopwdsrm, cleantxt, smart_procrustes_align_gensim, get_articles,  get_sentences
+from utils.utils import stopwdsrm, cleantxt, smart_procrustes_align_gensim, get_articles,  get_records
 
 # ------------------- Start timing the whole process --------------------
 
@@ -56,9 +56,11 @@ with open("config.yaml", "r") as f:
 ## -- General
 namethetest = configs['namethetest']
 inputfiles = configs['inputs']['directory']
+target_words = configs['inputs']['target'].split()
 skip_preprocessing = configs['preprocessing']['skip']
 skip_training = configs['training']['skip']
 skip_alignment = configs['alignment']['skip']
+number_records = configs['inputs']['number_records']
 
 ## -- Preprocessing
 if skip_preprocessing == False:
@@ -105,7 +107,7 @@ if savepreprocessed == True:
 # ------------------- Preprocessing & training --------------------
 
 # --- List the paths for all the texts inside the input dir
-alltexts = glob(f'{inputfiles}/*.xml')
+alltexts = sorted(glob(f'{inputfiles}/*.xml'))
 
 # --- Define stopwords
 cachedStopWords = stopwords.words("english")
@@ -130,8 +132,8 @@ for subcorpus in alltexts:
     
     # --- Start list of sentences (i.e. articles, text chunks, etc., depending on input), this will be input of w2v
 
-    records = get_articles(subcorpus)
-    sentences = get_sentences(records)
+    sentences = get_records(subcorpus, target_words, number_records)
+
 
     # --- loop through sentences and preprocess
     clean_sentences = []
